@@ -26,7 +26,7 @@
   "builders":
   [
     {
-      "name": "xubuntu-16.04",
+      "name": "xubuntu-16.04.qcow2",
       "type": "qemu",
       "format": "qcow2",
       "accelerator": "kvm",
@@ -36,12 +36,9 @@
       "iso_checksum_type": "none",
       "disk_image": "true",
       "qemuargs": [
-        [ "-vga", "std" ],
-        [ "-netdev", "user,id=packer0", "" ],
-        [ "-device", "virtio-net-pci,netdev=packer0" ]
+        [ "-vga", "std" ]
       ],
       "headless": "{{ user `headless` }}",
-      "net_device": "virtio-net-pci",
       "machine_type": "q35",
       "ssh_username": "{{user `user`}}",
       "ssh_password": "{{user `password`}}",
@@ -55,7 +52,7 @@
 			"type": "shell",
 			"execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
 			"scripts": [
-				"scripts/provision.sh"
+				"scripts/provision-xubuntu.sh"
 			]
 		}
   ]

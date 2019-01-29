@@ -1,10 +1,16 @@
-# Ubuntu packer templates
+# Ubuntu packer templates for base image and provisioning
 
 ## Create image
 
 ```bash
 read -p 'Enter password: ' -s password
 packer build -var 'user=packer' -var "password=$password" ubuntu-16.04-server-amd64.json
+```
+
+## Provisioning 
+```bash
+read -p 'Enter password: ' -s password
+packer build -var 'user=packer' -var "password=$password" provision-*.json
 ```
 
 ## Preseed file
@@ -15,7 +21,7 @@ Look in http/ for the available preseed files that automate the ubuntu installat
 
 Look in scripts/ for the Packer provisioner shell scripts
 
-## Packer ansible-local playbook
+## Packer ansible-local playbook (not used)
 
 Look in ansible/ for the Packer ansible-local provisioner playbook
 

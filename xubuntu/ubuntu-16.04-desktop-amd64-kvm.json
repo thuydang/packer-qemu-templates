@@ -50,7 +50,6 @@
       ],
       "http_directory": "http",
       "headless": "{{ user `headless` }}",
-      "net_device": "virtio-net-pci",
       "machine_type": "q35",
       "ssh_username": "{{user `user`}}",
       "ssh_password": "{{user `password`}}",

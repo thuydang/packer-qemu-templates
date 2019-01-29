@@ -1,0 +1,112 @@
+{
+  "description": "Builds an Ubuntu 16.04 Desktop box with various software development tools installed",
+  "min_packer_version": "1.2.1",
+  "variables": {
+    "user": "xubuntu",
+    "password": "xubuntu",
+    "hostname": "xenial-xubuntu",
+    "box_basename": "xenial-xubuntu",
+    "version": "5.2.8",
+    "comment": "kvm 5.2.8",
+    "disk_size": "150000",
+    "build_timestamp": "{{isotime \"20190102150405\"}}",
+    "cpus": "4",
+    "git_revision": "__unknown_git_revision__",
+    "headless": "false",
+    "http_proxy": "{{env `http_proxy`}}",
+    "https_proxy": "{{env `https_proxy`}}",
+    "memory": "4096",
+    "metadata": "floppy/dummy_metadata.json",
+    "mirror": "http://releases.ubuntu.com",
+    "mirror_directory": "16.04",
+    "iso_name": "ubuntu-16.04.5-server-amd64.iso",
+    "iso_checksum": "c94de1cc2e10160f325eb54638a5b5aa38f181d60ee33dae9578d96d932ee5f8",
+    "iso_checksum_type": "sha256",
+    "name": "xubuntu-16.04",
+    "no_proxy": "{{env `no_proxy`}}",
+    "preseed_path": "xubuntu-16.04/preseed.cfg",
+    "template": "xubuntu-16.04-amd64-desktop",
+    "version": "1.1.7"
+
+  },
+
+  "builders":
+  [
+    {
+      "name": "xubuntu-1604-desktop",
+
+      "type": "qemu",
+      "format": "qcow2",
+      "accelerator": "kvm",
+      "disk_size": "{{ user `disk_size`}}",
+      "output_directory": "packer-{{user `template`}}.qcow2", 
+      "headless": false,
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_urls": [
+        "iso/{{user `iso_name`}}",
+        "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}"
+      ], 
+      "qemuargs": [
+        [ "-vga", "std" ],
+        [ "-nographic", "" ]
+      ],
+      "http_directory": "http",
+      "headless": "{{ user `headless` }}",
+      "net_device": "virtio-net-pci",
+      "machine_type": "q35",
+      "ssh_username": "{{user `user`}}",
+      "ssh_password": "{{user `password`}}",
+      "ssh_wait_timeout": "10m",
+      "shutdown_command": "echo '{{user `password`}}'|sudo -S shutdown -P now",
+			"boot_wait": "10s",
+			"boot_command": [
+				"<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+				"<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+				"<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+				"<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+				"/install/vmlinuz<wait>",
+				" auto<wait>",
+				" console-setup/ask_detect=false<wait>",
+				" console-setup/layoutcode=us<wait>",
+				" console-setup/modelcode=pc105<wait>",
+				" debconf/frontend=noninteractive<wait>",
+				" debian-installer=en_US<wait>",
+				" fb=false<wait>",
+				" initrd=/install/initrd.gz<wait>",
+				" kbd-chooser/method=us<wait>",
+				" keyboard-configuration/layout=USA<wait>",
+				" keyboard-configuration/variant=USA<wait>",
+				" locale=en_US.UTF-8<wait>",
+				" netcfg/get_domain=vm<wait>",
+				" netcfg/get_hostname=xubuntu<wait>",
+				" noapic<wait>",
+				" preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
+				" -- <wait>",
+				"<enter><wait>" 
+			]
+		}
+	],
+	"provisioners": [
+		{
+			"type": "shell",
+			"execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+			"scripts": [
+				"scripts/update.sh",
+				"scripts/console.sh",
+				"scripts/network.sh",
+				"scripts/sudo.sh",
+				"scripts/ansible.sh"
+			]
+		},
+		{
+			"type": "ansible-local",
+			"playbook_file": "ansible/playbook.yml"
+		},
+		{
+			"type": "shell",
+			"execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+			"scripts": "scripts/cleanup.sh"
+		}
+	]
+}

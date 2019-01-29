@@ -8,7 +8,7 @@
     "box_basename": "xenial-xubuntu",
     "version": "5.2.8",
     "comment": "kvm 5.2.8",
-    "disk_size": "150000",
+    "disk_size": "10000",
     "build_timestamp": "{{isotime \"20190102150405\"}}",
     "cpus": "4",
     "git_revision": "__unknown_git_revision__",
@@ -22,10 +22,10 @@
     "iso_name": "ubuntu-16.04.5-server-amd64.iso",
     "iso_checksum": "c94de1cc2e10160f325eb54638a5b5aa38f181d60ee33dae9578d96d932ee5f8",
     "iso_checksum_type": "sha256",
-    "name": "xubuntu-16.04",
+    "name": "ubuntu-16.04.5-server",
     "no_proxy": "{{env `no_proxy`}}",
     "preseed_path": "xubuntu-16.04/preseed.cfg",
-    "template": "xubuntu-16.04-amd64-desktop",
+    "template": "ubuntu-16.04.5-server-amd64",
     "version": "1.1.7"
 
   },
@@ -33,14 +33,12 @@
   "builders":
   [
     {
-      "name": "xubuntu-1604-desktop",
-
+      "name": "ubuntu-16.04.5-server",
       "type": "qemu",
       "format": "qcow2",
       "accelerator": "kvm",
       "disk_size": "{{ user `disk_size`}}",
-      "output_directory": "packer-{{user `template`}}.qcow2", 
-      "headless": false,
+      "output_directory": "packer-{{user `template`}}", 
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
       "iso_urls": [
@@ -48,8 +46,7 @@
         "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}"
       ], 
       "qemuargs": [
-        [ "-vga", "std" ],
-        [ "-nographic", "" ]
+        [ "-vga", "std" ]
       ],
       "http_directory": "http",
       "headless": "{{ user `headless` }}",
@@ -100,11 +97,7 @@
 			]
 		},
 		{
-			"type": "ansible-local",
-			"playbook_file": "ansible/playbook.yml"
-		},
-		{
-			"type": "shell",
+	    "type": "shell",
 			"execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
 			"scripts": "scripts/cleanup.sh"
 		}

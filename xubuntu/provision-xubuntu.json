@@ -1,0 +1,62 @@
+{
+  "description": "Builds an Ubuntu 16.04 Desktop box with various software development tools installed",
+  "min_packer_version": "1.2.1",
+  "variables": {
+    "user": "xubuntu",
+    "password": "xubuntu",
+    "hostname": "xenial-xubuntu",
+    "box_basename": "xenial-xubuntu",
+    "version": "5.2.8",
+    "comment": "kvm 5.2.8",
+    "disk_size": "150000",
+    "build_timestamp": "{{isotime \"20190102150405\"}}",
+    "cpus": "4",
+    "git_revision": "__unknown_git_revision__",
+    "headless": "false",
+    "memory": "4096",
+    "metadata": "floppy/dummy_metadata.json",
+    "name": "xubuntu-16.04",
+    "no_proxy": "{{env `no_proxy`}}",
+    "template": "ubuntu-16.04.5-server-amd64",
+    "base_image_name": "ubuntu-16.04.5-server",
+    "version": "1.1.7"
+
+  },
+
+  "builders":
+  [
+    {
+      "name": "xubuntu-16.04",
+      "type": "qemu",
+      "format": "qcow2",
+      "accelerator": "kvm",
+      "disk_size": "{{ user `disk_size`}}",
+      "iso_url": "packer-{{user `template`}}/packer-{{user `base_image_name`}}", 
+      "output_directory": "packer-{{user `template`}}/{{user `name`}}", 
+      "iso_checksum_type": "none",
+      "disk_image": "true",
+      "qemuargs": [
+        [ "-vga", "std" ],
+        [ "-netdev", "user,id=packer0", "" ],
+        [ "-device", "virtio-net-pci,netdev=packer0" ]
+      ],
+      "headless": "{{ user `headless` }}",
+      "net_device": "virtio-net-pci",
+      "machine_type": "q35",
+      "ssh_username": "{{user `user`}}",
+      "ssh_password": "{{user `password`}}",
+      "ssh_wait_timeout": "10m",
+      "shutdown_command": "echo '{{user `password`}}'|sudo -S shutdown -P now",
+			"boot_wait": "10s"
+		}
+	],
+	"provisioners": [
+		{
+			"type": "shell",
+			"execute_command": "echo '{{user `password`}}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+			"scripts": [
+				"scripts/provision.sh"
+			]
+		}
+  ]
+}
